@@ -1,2 +1,3 @@
-# miljohack-kakelaget
-"Miljøhack" event by Knowit
+# Miljøhack 🎂laget
+
+Goal: Improve the visual experience for real-time information about public transport.
