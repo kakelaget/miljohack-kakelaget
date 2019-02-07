@@ -9,7 +9,6 @@
 import Map from '@/components/Map.vue';
 import Nav from '@/components/Nav.vue';
 
-console.log(Map);
 export default {
   name: 'home',
   components: {
