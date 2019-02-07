@@ -1,7 +1,10 @@
 <template>
   <div class="home">
+      <button
+            class="night-switch"
+          v-on:click="changeTime()">{{ !dark ? "Natt" : "Dag"}}</button>
     <Map></Map>
-    <Nav></Nav>
+    <Nav :dark="this.dark"></Nav>
   </div>
 </template>
 
@@ -16,6 +19,9 @@ export default {
     Nav,
   },
   methods: {
+      changeTime: function() {
+          this.dark = !this.dark;
+      },
       mapInit: function(map) {
           console.log(map);
       },
@@ -23,10 +29,25 @@ export default {
         console.log("test");
       }
   },
+  data(){
+      return {
+          dark: false
+      }
+  }
 };
 </script>
 
 <style>
+    .night-switch {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        z-index: 9;
+        padding: 9px;
+        font-size: 1rem;
+        background-color: black;
+        color: white;
+    }
 	.home {
 		display: flex;
         flex-direction: row;

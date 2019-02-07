@@ -53,7 +53,7 @@ export default {
         console.log('car', car)
         console.log('loadedCars', this.loadedCars)
 
-        
+
         if (carID in this.loadedCars) {
           console.log('updating cars', carID)
           this.map.getSource(carID).setData(carToGeoJSON(car));
