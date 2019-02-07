@@ -40,15 +40,15 @@ export default {
     },
     async mapLoaded(map) {
     	this.map = map;
-    	this.map.addSource('bus-17', { 
+    	this.map.addSource('trikk-17', { 
 		  	type: 'geojson', 
 		  	data: await getGeoJSONByLineNumber('17')
 		  })
 
 		  this.map.addLayer({
-		  	'id': 'bus-17',
+		  	'id': 'trikk-17',
 		  	'type': 'symbol',
-		  	'source': 'bus-17',
+		  	'source': 'trikk-17',
 		  	'layout': {
 	        'icon-image': '{icon}-15',
 	        'text-field': '{title}',
@@ -61,7 +61,7 @@ export default {
 		  window.setInterval(() => {
 		  	getGeoJSONByLineNumber('17')
 		  		.then((resp) => {
-		  			this.map.getSource('bus-17').setData(resp);
+		  			this.map.getSource('trikk-17').setData(resp);
 		  			this.map.flyTo({
 		  				center: geoToCords(resp),
 		  				zoom: 14
