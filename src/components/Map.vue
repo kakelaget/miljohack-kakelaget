@@ -11,6 +11,8 @@
 </template>
 
 <script>
+
+import store from '@/utils/store.js';
 import Mapbox from 'mapbox-gl-vue';
 import MapboxTraffic from '@mapbox/mapbox-gl-traffic';
 import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
@@ -32,13 +34,18 @@ export default {
         zoom: 12,
         minZoom: 0,
         maxZoom: 18,
-        maxBounds: [
+        /*maxBounds: [
             [10.3874, 59.8137],
             [11.3129, 60.0184]
-        ]
+        ]*/
 	  	},
       loadedCars: []
   	}
+  },
+  computed: {
+    map: function() {
+        return store.getters.map;
+    }
   },
   beforeMount() {
     window.setInterval(async () => {
@@ -49,7 +56,7 @@ export default {
 
       cars.map((car) => {
         const carID = idOfCar(car);
-        
+
         if (carID in this.loadedCars) {
           console.log('updating car', carID);
           this.map.getSource(carID).setData(carToGeoJSON(car));
@@ -65,11 +72,15 @@ export default {
       console.log(`User position: ${position.coords.latitude}, ${position.coords.longitude}`);
     },
     mapInitialized: function(map) {
-        map.addControl(new MapboxTraffic({
+        console.log(store);
+        store.dispatch("setMap", map);
+        console.log(store.map);
+        console.log(this.map);
+        this.map.addControl(new MapboxTraffic({
           showTraffic: true
         }));
-        
-        map.addControl(new MapboxStyleSwitcherControl(
+
+        this.map.addControl(new MapboxStyleSwitcherControl(
           [{
             title: "Natt",
             uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
@@ -81,7 +92,7 @@ export default {
         ));
     },
     async mapLoaded(map) {
-    	this.map = map;
+    	//this.map = map;
 
       const cars = await getCarByLine('19');
       this.loadedCars = {};

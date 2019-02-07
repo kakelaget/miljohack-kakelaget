@@ -11,25 +11,70 @@
                 Ingen resultater . . .
             </div>
             <div v-for="searchResult in searchResults"
-                v-bind:class="{ hide : searchResults.length == 0}">
-                {{searchResult}}
+                v-bind:class="{ hide : searchResults.length == 0}"
+                v-on:click="goToCord(searchResult.id, searchResult.coordinates)">
+                {{searchResult.title}}
+            </div>
+            <br />
+            <div v-for="departure in departures"
+                v-bind:class="{ hide : departures.length == 0}">
+                {{departure}}
             </div>
         </div>
     </div>
 </template>
 
 <script>
+
+import EnturService from '@entur/sdk';
+import store from '@/utils/store.js';
+
+const service = new EnturService({ clientName: 'miljohack-ruterentur' })
+
 export default {
+    computed: {
+      map: function() {
+          return store.getters.map;
+      }
+    },
     methods: {
-        processSearch() {
-            this.searchResults.push(this.searchText);
-            this.searchText = "";
+        async processSearch() {
+            this.searchResults = [];
+
+            const toFeature = await service.getFeatures(this.searchText);
+
+            for(var i = 0; i < toFeature.length; i++) {
+                this.searchResults.push({
+                    title: toFeature[i].properties.name,
+                    coordinates: toFeature[i].geometry.coordinates,
+                    id: toFeature[i].properties.id
+                });
+            }
+
+        },
+        async goToCord(id, coordinates) {
+            this.departures = [];
+            store.getters.map.flyTo({
+                center: [
+                    coordinates[0],
+                    coordinates[1]
+                ],
+                zoom: 19
+            });
+            const _departures = await service.getStopPlaceDepartures(id, {
+                timeRange: 1400
+            });
+
+            for(var i = 0; i < _departures.length; i++) {
+                this.departures.push(_departures[i].serviceJourney.journeyPattern.line.id);
+            }
         }
     },
     data(){
         return {
             searchText: "",
-            searchResults: []
+            searchResults: [],
+            departures: []
         }
     }
 };
