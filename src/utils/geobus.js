@@ -15,7 +15,7 @@ function getCordsByLineNumber(lineNumber) {
 
 function cordsOfCar(car) {
 	const VehicleCords = car.MonitoredVehicleJourney[0].VehicleLocation[0];
-	return [ VehicleCords.Longitude[0], VehicleCords.Latitude[0] ]
+	return [ parseFloat(VehicleCords.Longitude[0]), parseFloat(VehicleCords.Latitude[0]) ]
 	// return { long: VehicleCords.Longitude[0], lat: VehicleCords.Latitude[0] }
 }
 
@@ -60,4 +60,4 @@ function getCarByLine(lineNumber) {
 	.then((response) => response.data.results)
 }
 
-export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar }
+export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar }
