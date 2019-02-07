@@ -29,7 +29,7 @@ export default {
   		options: {
             style: 'mapbox://styles/mapbox/outdoors-v9',
             center: [10.7601723, 59.9167327],
-            zoom: 16,
+            zoom: 12,
             minZoom: 0,
             maxZoom: 18,
             maxBounds: [
