@@ -1,5 +1,6 @@
 <template>
-    <div class="nav-container">
+    <div class="nav-container"
+        v-bind:class="{ night: nightMode }">
         <div class="nav-header">
             Ruter map
         </div>
@@ -28,7 +29,8 @@
                         title: "Busser",
                         Component: Filter
                     }
-                ]
+                ],
+                nightMode: true
             }
         }
     };
@@ -41,6 +43,9 @@
     width: 30vw;
     display: flex;
     flex-direction: column;
+}
+.night {
+    filter: invert(85%);
 }
 .nav-header {
     background: #f5f5f5;
