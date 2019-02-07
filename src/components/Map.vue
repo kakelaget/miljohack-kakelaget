@@ -27,15 +27,15 @@ export default {
   	return {
   		accessToken: "pk.eyJ1Ijoia2FzcGVycnQiLCJhIjoiY2pydWVyaHl1MDN6djQ0bDVuc3ZseDIzeCJ9.1r8QxHcJboxo3PJArWKOYQ",
   		options: {
-            style: 'mapbox://styles/mapbox/outdoors-v9',
-            center: [10.7601723, 59.9167327],
-            zoom: 12,
-            minZoom: 0,
-            maxZoom: 18,
-            maxBounds: [
-                [10.3874, 59.8137],
-                [11.3129, 60.0184]
-            ]
+        style: 'mapbox://styles/mapbox/outdoors-v9',
+        center: [10.7601723, 59.9167327],
+        zoom: 12,
+        minZoom: 0,
+        maxZoom: 18,
+        maxBounds: [
+            [10.3874, 59.8137],
+            [11.3129, 60.0184]
+        ]
 	  	},
       loadedCars: []
   	}
@@ -49,13 +49,9 @@ export default {
 
       cars.map((car) => {
         const carID = idOfCar(car);
-
-        console.log('car', car)
-        console.log('loadedCars', this.loadedCars)
-
         
         if (carID in this.loadedCars) {
-          console.log('updating cars', carID)
+          console.log('updating car', carID);
           this.map.getSource(carID).setData(carToGeoJSON(car));
         }
       })
@@ -69,22 +65,19 @@ export default {
       console.log(`User position: ${position.coords.latitude}, ${position.coords.longitude}`);
     },
     mapInitialized: function(map) {
-        map.addControl(new MapboxTraffic(
-            {
-                showTraffic: true
-            }
-        ));
+        map.addControl(new MapboxTraffic({
+          showTraffic: true
+        }));
+        
         map.addControl(new MapboxStyleSwitcherControl(
-            [
-                {
-                    title: "Natt",
-                    uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
-                },
-                {
-                    title: "Dag",
-                    uri:"mapbox://styles/mapbox/outdoors-v9"
-                }
-            ]
+          [{
+            title: "Natt",
+            uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
+          },
+          {
+            title: "Dag",
+            uri:"mapbox://styles/mapbox/outdoors-v9"
+          }]
         ));
     },
     async mapLoaded(map) {
