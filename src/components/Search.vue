@@ -7,7 +7,11 @@
             </div>
         </form>
         <div class="search-result">
-            <div v-for="searchResult in searchResults">
+            <div v-bind:class="{ hide : searchResults.length > 0 }">
+                Ingen resultater . . .
+            </div>
+            <div v-for="searchResult in searchResults"
+                v-bind:class="{ hide : searchResults.length == 0}">
                 {{searchResult}}
             </div>
         </div>
@@ -25,7 +29,7 @@ export default {
     data(){
         return {
             searchText: "",
-            searchResults: [""]
+            searchResults: []
         }
     }
 };
@@ -45,6 +49,9 @@ export default {
     display: flex;
     flex-direction: column;
     height: -webkit-fill-available;
+}
+.hide {
+    display: none;
 }
 .input-field {
     background: transparent;
