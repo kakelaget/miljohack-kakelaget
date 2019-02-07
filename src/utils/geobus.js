@@ -19,7 +19,7 @@ function getGeoJSONByLineNumber(lineNumber) {
     "features": [{
     	"type": "Feature",
       'properties': {
-        'title': 'Bus 17',
+        'title': 'Trikk 17',
         'icon': 'bus'
       },
       "geometry": {
