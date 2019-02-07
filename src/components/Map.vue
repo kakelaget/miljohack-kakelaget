@@ -15,7 +15,7 @@ import Mapbox from 'mapbox-gl-vue';
 import MapboxTraffic from '@mapbox/mapbox-gl-traffic';
 import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
 import axios from 'axios';
-import { getCordsByLineNumber, getGeoJSONByLineNumber } from '@/utils/geobus.js'
+import { getCarByLine, carToGeoJSON, idOfCar } from '@/utils/geobus.js'
 import { geoToCords } from '@/utils/helper.js'
 
 export default {
@@ -36,10 +36,30 @@ export default {
                 [10.3874, 59.8137],
                 [11.3129, 60.0184]
             ]
-	  	}
+	  	},
+      loadedCars: []
   	}
   },
   beforeMount() {
+    window.setInterval(async () => {
+      if (this.loadedCars.length < 1)
+        return
+
+      const cars = await getCarByLine('19');
+
+      cars.map((car) => {
+        const carID = idOfCar(car);
+
+        console.log('car', car)
+        console.log('loadedCars', this.loadedCars)
+
+        
+        if (carID in this.loadedCars) {
+          console.log('updating cars', carID)
+          this.map.getSource(carID).setData(carToGeoJSON(car));
+        }
+      })
+    }, 1000);
   },
   methods: {
   	mapClicked(map, e) {
@@ -66,37 +86,46 @@ export default {
                 }
             ]
         ));
-  },
+    },
     async mapLoaded(map) {
     	this.map = map;
-    	this.map.addSource('trikk-17', {
-		  	type: 'geojson',
-		  	data: await getGeoJSONByLineNumber('17')
-		  })
 
-		  this.map.addLayer({
-		  	'id': 'trikk-17',
-		  	'type': 'symbol',
-		  	'source': 'trikk-17',
-		  	'layout': {
-	        'icon-image': '{icon}-15',
-	        'text-field': '{title}',
-	        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-	        'text-offset': [0, 0.6],
-	        'text-anchor': 'top'
-	      }
-		  })
+      const cars = await getCarByLine('19');
+      this.loadedCars = {};
 
-		  window.setInterval(() => {
-		  	getGeoJSONByLineNumber('17')
-		  		.then((resp) => {
-		  			this.map.getSource('trikk-17').setData(resp);
-		  			this.map.flyTo({
-		  				center: geoToCords(resp),
-		  				zoom: 14
-		  			})
-		  		})
-		  }, 3000);
+      cars.map((car) => {
+        const carID = idOfCar(car);
+
+        if (this.loadedCars.carID) {
+          console.log('car exists with id', carID)
+          return
+        } else {
+          console.log('carID', carID)
+        }
+
+        this.map.addSource(carID, {
+          type: 'geojson',
+          data: carToGeoJSON(car)
+        })
+
+        this.map.addLayer({
+          'id': carID,
+          'type': 'symbol',
+          'source': carID,
+          'layout': {
+            'icon-image': '{icon}-15',
+            'text-field': '{title}',
+            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top'
+          }
+        })
+
+        this.loadedCars = {
+          ...this.loadedCars,
+          [carID]: car
+        };
+      })
     },
   }
 }

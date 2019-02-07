@@ -9,32 +9,55 @@ function getCordsByLineNumber(lineNumber) {
 			lineRef: `RUT:Line:${lineNumber}`
 		}
 	})
-	.then((resp) => resp.data.data.MonitoredVehicleJourney[0].VehicleLocation[0])
+	// .then((resp) => resp.data.data.)
 	.then((VehicleCords) => { return { long: VehicleCords.Longitude[0], lat: VehicleCords.Latitude[0] } })
 }
 
-function getGeoJSONByLineNumber(lineNumber) {
-	const GEO_JSON_MOCK = {
+function cordsOfCar(car) {
+	const VehicleCords = car.MonitoredVehicleJourney[0].VehicleLocation[0];
+	return [ VehicleCords.Longitude[0], VehicleCords.Latitude[0] ]
+	// return { long: VehicleCords.Longitude[0], lat: VehicleCords.Latitude[0] }
+}
+
+function nameOfCar(car) {
+	return car.MonitoredVehicleJourney[0].PublishedLineName;
+}
+
+function typeOfCar(car) {
+	return 'Trikk'
+}
+
+function idOfCar(car) {
+	return car.MonitoredVehicleJourney[0].VehicleRef[0];
+}
+
+function carToGeoJSON(car) {
+	const MOCK_GEO_JSON = {
 		"type": "FeatureCollection",
     "features": [{
     	"type": "Feature",
       'properties': {
-        'title': 'Trikk 17',
+        'title': '',
         'icon': 'bus'
       },
       "geometry": {
       	"type": "Point",
-        "coordinates": [ undefined,	undefined ]
+        "coordinates": []
       }
     }]
 	}
-
-	return getCordsByLineNumber(lineNumber)
-		.then((cords) => {
-			let geoJSONPosition = GEO_JSON_MOCK;
-			geoJSONPosition.features[0].geometry.coordinates = [ cords.long, cords.lat ];
-			return geoJSONPosition
-		})
+	const geoJson = MOCK_GEO_JSON;
+	geoJson.features[0].properties.title = `${typeOfCar(car)} ${nameOfCar(car)}`
+	geoJson.features[0].geometry.coordinates = cordsOfCar(car)
+	
+	return geoJson
 }
 
-export { getCordsByLineNumber, getGeoJSONByLineNumber }
+function getCarByLine(lineNumber) {
+	return axios.get(BASE_URL + '/geopos', {
+		params: { lineRef: `RUT:Line:${lineNumber}`}
+	})
+	.then((response) => response.data.results)
+}
+
+export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar }
