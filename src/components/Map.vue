@@ -1,65 +1,109 @@
 <template>
-    <div>
-        <mapbox
-            :access-token="accessToken"
-            :map-options="options"
-            @map-init="mapInitialized">
-        </mapbox>
-    </div>
+  <div>
+	  <mapbox
+	  	:access-token="accessToken"
+	  	:map-options="options"
+	  	@map-click="mapClicked"
+        @map-init="mapInitialized"
+	  	@geolocate-geolocate="geolocate"
+	  	@map-load="mapLoaded"></mapbox>
+  </div>
 </template>
 
 <script>
 import Mapbox from 'mapbox-gl-vue';
 import MapboxTraffic from '@mapbox/mapbox-gl-traffic';
 import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
+import axios from 'axios';
+import { getCordsByLineNumber, getGeoJSONByLineNumber } from '@/utils/geobus.js'
+import { geoToCords } from '@/utils/helper.js'
 
 export default {
-    components: {
-        Mapbox,
-        MapboxTraffic
+  components: {
+      Mapbox,
+      MapboxTraffic
+  },
+  data() {
+  	return {
+  		accessToken: "pk.eyJ1Ijoia2FzcGVycnQiLCJhIjoiY2pydWVyaHl1MDN6djQ0bDVuc3ZseDIzeCJ9.1r8QxHcJboxo3PJArWKOYQ",
+  		options: {
+            style: 'mapbox://styles/mapbox/outdoors-v9',
+            center: [10.7601723, 59.9167327],
+            zoom: 16,
+            minZoom: 0,
+            maxZoom: 18,
+            maxBounds: [
+                [10.3874, 59.8137],
+                [11.3129, 60.0184]
+            ]
+	  	}
+  	}
+  },
+  beforeMount() {
+  },
+  methods: {
+  	mapClicked(map, e) {
+      alert('Map Clicked!');
     },
-    methods: {
-        mapInitialized: function(map) {
-            map.addControl(new MapboxTraffic(
-                {
-                    showTraffic: true
-                }
-            ));
-            map.addControl(new MapboxStyleSwitcherControl(
-                [
-                    {
-                        title: "Natt",
-                        uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
-                    },
-                    {
-                        title: "Dag",
-                        uri:"mapbox://styles/mapbox/outdoors-v9"
-                    }
-                ]
-            ));
-      },
+  	geolocate(control, position) {
+      console.log(`User position: ${position.coords.latitude}, ${position.coords.longitude}`);
     },
-
-    data() {
-        return {
-            accessToken: "pk.eyJ1Ijoia2FzcGVycnQiLCJhIjoiY2pydWVyaHl1MDN6djQ0bDVuc3ZseDIzeCJ9.1r8QxHcJboxo3PJArWKOYQ",
-            options: {
-                style: 'mapbox://styles/mapbox/outdoors-v9',
-                center: [10.7601723, 59.9167327],
-                zoom: 16,
-                minZoom: 0,
-                maxZoom: 18,
-                maxBounds: [
-                    [10.3874, 59.8137],
-                    [11.3129, 60.0184]
-                ]
+    mapInitialized: function(map) {
+        map.addControl(new MapboxTraffic(
+            {
+                showTraffic: true
             }
-        }
-    }
+        ));
+        map.addControl(new MapboxStyleSwitcherControl(
+            [
+                {
+                    title: "Natt",
+                    uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
+                },
+                {
+                    title: "Dag",
+                    uri:"mapbox://styles/mapbox/outdoors-v9"
+                }
+            ]
+        ));
+  },
+    async mapLoaded(map) {
+    	this.map = map;
+    	this.map.addSource('trikk-17', {
+		  	type: 'geojson',
+		  	data: await getGeoJSONByLineNumber('17')
+		  })
+
+		  this.map.addLayer({
+		  	'id': 'trikk-17',
+		  	'type': 'symbol',
+		  	'source': 'trikk-17',
+		  	'layout': {
+	        'icon-image': '{icon}-15',
+	        'text-field': '{title}',
+	        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+	        'text-offset': [0, 0.6],
+	        'text-anchor': 'top'
+	      }
+		  })
+
+		  window.setInterval(() => {
+		  	getGeoJSONByLineNumber('17')
+		  		.then((resp) => {
+		  			this.map.getSource('trikk-17').setData(resp);
+		  			this.map.flyTo({
+		  				center: geoToCords(resp),
+		  				zoom: 14
+		  			})
+		  		})
+		  }, 3000);
+    },
+  }
 }
 </script>
 
 <style>
+
 #map {
     width: 70vw;
     height: 100vh;
@@ -114,4 +158,5 @@ export default {
     background-repeat: no-repeat;
     background-size: 70%;
 }
+
 </style>
