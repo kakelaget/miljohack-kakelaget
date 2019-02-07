@@ -31,7 +31,7 @@ export default {
             center: [10.7601723, 59.9167327],
             zoom: 12,
             minZoom: 0,
-            maxZoom: 18,
+            maxZoom: 17,
             maxBounds: [
                 [10.3874, 59.8137],
                 [11.3129, 60.0184]
@@ -49,12 +49,13 @@ export default {
       console.log(`User position: ${position.coords.latitude}, ${position.coords.longitude}`);
     },
     mapInitialized: function(map) {
-        map.addControl(new MapboxTraffic(
+        this.map = map;
+        this.map.addControl(new MapboxTraffic(
             {
                 showTraffic: true
             }
         ));
-        map.addControl(new MapboxStyleSwitcherControl(
+        this.map.addControl(new MapboxStyleSwitcherControl(
             [
                 {
                     title: "Natt",
@@ -63,6 +64,7 @@ export default {
                 {
                     title: "Dag",
                     uri:"mapbox://styles/mapbox/outdoors-v9"
+
                 }
             ]
         ));
@@ -72,7 +74,7 @@ export default {
     	this.map.addSource('trikk-17', {
 		  	type: 'geojson',
 		  	data: await getGeoJSONByLineNumber('17')
-		  })
+        });
 
 		  this.map.addLayer({
 		  	'id': 'trikk-17',
@@ -86,17 +88,30 @@ export default {
 	        'text-anchor': 'top'
 	      }
 		  })
-
-		  window.setInterval(() => {
+          clearInterval(window.superInterval);
+		  window.superInterval = setInterval(() => {
 		  	getGeoJSONByLineNumber('17')
 		  		.then((resp) => {
-		  			this.map.getSource('trikk-17').setData(resp);
+                    if(this == undefined || this.map == undefined || this.map.getSource == undefined) {
+                        clearInterval(window.superInterval);
+                        return;
+                    }
+
+                    try {
+		                 this.map.getSource('trikk-17').setData(resp);
+                         console.log("Fetching", window.superInterval);
+                     } catch(e) {
+                         console.log(this.map, 1, window.superInterval);
+                         clearInterval(window.superInterval);
+                         delete window.superInterval;
+                         return;
+                     }
 		  			this.map.flyTo({
 		  				center: geoToCords(resp),
-		  				zoom: 14
+		  				zoom: 15
 		  			})
 		  		})
-		  }, 3000);
+		  }, 100000);
     },
   }
 }

@@ -1,8 +1,8 @@
 <template>
     <div class="nav-container"
-        v-bind:class="{ night: nightMode }">
+        v-bind:class="{ night: dark }">
         <div class="nav-header">
-            Ruter map
+            Ruter maps
         </div>
         <Accordion :accordionItems="accordionComponents"></Accordion>
     </div>
@@ -18,8 +18,15 @@
         components: {
             Accordion,
         },
+        props: {
+            dark: {
+                type: Boolean,
+                required: false,
+            }
+        },
         data(){
             return {
+                routes: [],
                 accordionComponents: [
                     {
                         title: "Søk",
