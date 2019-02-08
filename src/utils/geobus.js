@@ -4,7 +4,7 @@ const BASE_URL = `http://localhost:${process.env.VUE_APP_MH_PORT}`
 
 function getCordsByLineNumber(lineNumber) {
 
-	return axios.get(BASE_URL + '/geotest', { 
+	return axios.get(BASE_URL + '/geotest', {
 		params: {
 			lineRef: `RUT:Line:${lineNumber}`
 		}
@@ -15,7 +15,7 @@ function getCordsByLineNumber(lineNumber) {
 
 function cordsOfCar(car) {
 	const VehicleCords = car.MonitoredVehicleJourney[0].VehicleLocation[0];
-	return [ VehicleCords.Longitude[0], VehicleCords.Latitude[0] ]
+	return [ parseFloat(VehicleCords.Longitude[0]), parseFloat(VehicleCords.Latitude[0]) ]
 	// return { long: VehicleCords.Longitude[0], lat: VehicleCords.Latitude[0] }
 }
 
@@ -49,7 +49,7 @@ function carToGeoJSON(car) {
 	const geoJson = MOCK_GEO_JSON;
 	geoJson.features[0].properties.title = `${typeOfCar(car)} ${nameOfCar(car)}`
 	geoJson.features[0].geometry.coordinates = cordsOfCar(car)
-	
+
 	return geoJson
 }
 
@@ -60,4 +60,4 @@ function getCarByLine(lineNumber) {
 	.then((response) => response.data.results)
 }
 
-export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar }
+export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar }

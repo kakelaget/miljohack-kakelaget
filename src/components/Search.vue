@@ -18,7 +18,10 @@
             <br />
             <div v-for="departure in departures"
                 v-bind:class="{ hide : departures.length == 0}">
-                {{departure}}
+                <div v-bind:style="{ color: '#' + departure.color }"
+                    v-on:click="goToCurrentCordsofBus(departure.id)">
+                    {{ departure.number }} - {{ departure.title }} om {{ departure.in.minutes }} min og {{ departure.in.seconds }} sek.
+                </div>
             </div>
         </div>
     </div>
@@ -38,12 +41,16 @@ export default {
       }
     },
     methods: {
+        goToCurrentCordsofBus(id) {
+            var fullId = id;
+            var smallId = id.split("RUT:Line:")[1];
+        },
         async processSearch() {
             this.searchResults = [];
 
             const toFeature = await service.getFeatures(this.searchText);
-
             for(var i = 0; i < toFeature.length; i++) {
+                if(toFeature[i].properties.id.indexOf("NSR:StopPlace") == -1) continue;
                 this.searchResults.push({
                     title: toFeature[i].properties.name,
                     coordinates: toFeature[i].geometry.coordinates,
@@ -62,11 +69,25 @@ export default {
                 zoom: 19
             });
             const _departures = await service.getStopPlaceDepartures(id, {
-                timeRange: 1400
+                timeRange: 7200
             });
-
+            var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
-                this.departures.push(_departures[i].serviceJourney.journeyPattern.line.id);
+                //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
+                var arrival = new Date(_departures[i].expectedDepartureTime);
+                var seconds = Math.abs((arrival.getTime() - now.getTime()) / (1000));
+                var minutes = Math.floor(seconds /  60);
+                seconds = Math.floor(seconds - (minutes * 60));
+                this.departures.push({
+                    id: _departures[i].serviceJourney.journeyPattern.line.id,
+                    number: _departures[i].serviceJourney.journeyPattern.line.id.split("RUT:Line:")[1],
+                    title: _departures[i].serviceJourney.journeyPattern.line.name,
+                    in: {
+                        minutes: minutes,
+                        seconds: seconds
+                    },
+                    color: _departures[i].serviceJourney.journeyPattern.line.presentation.colour,
+                });
             }
         }
     },

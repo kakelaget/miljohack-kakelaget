@@ -17,8 +17,10 @@ import Mapbox from 'mapbox-gl-vue';
 import MapboxTraffic from '@mapbox/mapbox-gl-traffic';
 import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
 import axios from 'axios';
-import { getCarByLine, carToGeoJSON, idOfCar } from '@/utils/geobus.js'
-import { geoToCords } from '@/utils/helper.js'
+import { getCarByLine, carToGeoJSON, idOfCar, cordsOfCar } from '@/utils/geobus.js'
+import { geoToCords, compare } from '@/utils/helper.js'
+
+var MapboxDraw = require('@mapbox/mapbox-gl-draw');
 
 export default {
   components: {
@@ -39,7 +41,8 @@ export default {
             [11.3129, 60.0184]
         ]*/
 	  	},
-      loadedCars: []
+      loadedCars: [],
+      draw: undefined
   	}
   },
   computed: {
@@ -57,9 +60,36 @@ export default {
       cars.map((car) => {
         const carID = idOfCar(car);
 
-        if (carID in this.loadedCars) {
+        const carCords = cordsOfCar(car);
+
+        if (carID in this.loadedCars && !compare(carCords, cordsOfCar(this.loadedCars[carID]))) {
+          const oldCarCords = cordsOfCar(this.loadedCars[carID])
           console.log('updating car', carID);
           this.map.getSource(carID).setData(carToGeoJSON(car));
+
+          var feature = {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                oldCarCords,
+                carCords
+              ]
+            }
+          };
+
+          var featureIds = this.draw.add(feature);
+
+          this.loadedCars = {
+            ...this.loadedCars,
+            [carID]: car
+          };
+
+          this.map.flyTo({
+            center: carCords,
+            zoom: 16
+          })
         }
       })
     }, 1000);
@@ -72,15 +102,16 @@ export default {
       console.log(`User position: ${position.coords.latitude}, ${position.coords.longitude}`);
     },
     mapInitialized: function(map) {
-        console.log(store);
         store.dispatch("setMap", map);
-        console.log(store.map);
-        console.log(this.map);
-        this.map.addControl(new MapboxTraffic({
+        this.draw = new MapboxDraw()
+
+        map.addControl(this.draw, 'top-left')
+
+        map.addControl(new MapboxTraffic({
           showTraffic: true
         }));
 
-        this.map.addControl(new MapboxStyleSwitcherControl(
+        map.addControl(new MapboxStyleSwitcherControl(
           [{
             title: "Natt",
             uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
