@@ -166,10 +166,10 @@ export default {
 
                 this.draw.add(feature);
 
-                this.map.flyTo({
-                  center: carCords,
-                  zoom: 16
-                })
+                // this.map.flyTo({
+                //   center: carCords,
+                //   zoom: 16
+                // })
               }
 
               this.loadedCars = {
