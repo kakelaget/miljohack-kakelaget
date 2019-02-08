@@ -296,7 +296,7 @@ export default {
 .input-field {
     background: transparent;
     border: none;
-    border-bottom: 1px solid grey;
+    border-bottom: 1px solid #A2AAAD;
     padding: 10px;
     margin: 0 20px 0 0px;
     font-size: 1rem;
@@ -307,14 +307,14 @@ export default {
     padding: 10px;
     font-size: 1rem;
     color: grey;
-    border: 1px solid darkgrey;
+    border: 1px solid #A2AAAD;
     cursor: pointer;
 }
 
 .input-submit:hover {
-    background: darkgrey;
-    color: whitesmoke;
-    border: 1px solid whitesmoke;
+    background: #A2AAAD;
+    color: #F4F5F0;
+    border: 1px solid #F4F5F0;
 }
 
 .search-result {
@@ -326,7 +326,7 @@ export default {
 
 .read-button {
     height: 50px;
-    background: darkgrey;
+    background: #A2AAAD;
     font-size: 1rem;
     font-weight: lighter;
     width: 90%;
@@ -335,15 +335,15 @@ export default {
     left: 0;
     right: 0;
     margin: auto;
-    border: 1px solid whitesmoke;
+    border: 1px solid #F4F5F0;
     cursor: pointer;
-    color: whitesmoke;
+    color: #F4F5F0;
 }
 
 .read-button:hover {
-    color: darkgrey;
-    background-color: whitesmoke;
-    border: 1px solid darkgrey;
+    color: #A2AAAD;
+    background-color: #F4F5F0;
+    border: 1px solid #A2AAAD;
 }
 
 .search-result div{
