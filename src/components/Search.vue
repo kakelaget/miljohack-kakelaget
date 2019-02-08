@@ -105,7 +105,7 @@ export default {
                     'source': list[i].id + "_bicycle",
                     'layout': {
                         'icon-image': 'bicycle-15',
-                        'text-field': list[i].bikesAvailable + ":" + list[i].spacesAvailable,
+                        'text-field': list[i].bikesAvailable + " ledig av " + list[i].spacesAvailable,
                         'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
                         'text-offset': [0, 0.6],
                         'text-anchor': 'top'
