@@ -19,3 +19,8 @@ yarn run build
 ```
 yarn run lint
 ```
+
+
+### Link to visual identity
+
+https://docs.google.com/document/d/1QWQXi5TVBPKmcvDTd2pVp4ps4VcUjSXYwWjMKDpYOhE/edit?usp=sharing
