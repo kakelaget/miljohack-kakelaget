@@ -155,9 +155,9 @@ export default {
             if(this.marker != undefined) this.marker.remove();
 
             this.marker = new mapboxgl.Marker()
-            .setLngLat(coordinates)
-            .addTo(store.getters.map);
-
+                .setLngLat(coordinates)
+                .addTo(store.getters.map);
+            console.log(JSON.stringify(_departures));
             var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
                 //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
@@ -236,7 +236,15 @@ export default {
     font-size: 1rem;
     color: grey;
     border: 1px solid darkgrey;
+    cursor: pointer;
 }
+
+.input-submit:hover {
+    background: darkgrey;
+    color: whitesmoke;
+    border: 1px solid whitesmoke;
+}
+
 .search-result {
     padding: 20px 0;
     overflow: auto;
