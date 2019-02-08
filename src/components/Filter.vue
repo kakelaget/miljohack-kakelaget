@@ -1,9 +1,9 @@
 <template>
     <div class="filter-container">
-        <h4>Filtrer visning av busser</h4>
+        <h4>Filtrer visning av ruter</h4>
         <ul>
-            <li v-for="(route, i) in routes" class="filter-checkbox">
-                <input type="checkbox" :name="i" :id="i"  @change=" route.show = !route.show " />
+            <li v-for="(route, i) in filterElements" class="filter-checkbox">
+                <input type="checkbox" :name="i" :id="i"  @change=" route.show = !route.show " v-on:click="removeHideRoute(!route.show, route.id)" />
                 <label :for="i" v-bind:class="{ checked : route.show }">{{ route.title + " (rute " + route.id + ")" }}</label>
             </li>
         </ul>
@@ -11,42 +11,31 @@
 </template>
 
 <script>
+
+    import store from '@/utils/store.js';
+
     export default {
-        created: function() {
-            this.fetchRoutes();
-        },
         methods: {
-            fetchRoutes() {
-                this.routes = [{
-                    title: "Buss 13",
-                    show: true,
-                    id: "1"
-                },
-                {
-                    title: "Buss 13",
-                    show: true,
-                    id: "3"
-                },
-                {
-                    title: "Trikk 20",
-                    show: true,
-                    id: "3"
-                },
-                {
-                    title: "Trikk 20",
-                    show: true,
-                    id: "72"
-                },
-                {
-                    title: "Trikk 17",
-                    show: true,
-                    id: "56"
-                }];
+            removeHideRoute(show, id) {
+                var visibility = store.getters.map.getLayoutProperty(id, 'visibility')
+                if (visibility === 'visible' && !show) {
+                    store.getters.map.setLayoutProperty(id, 'visibility', 'none');
+                } else {
+                    store.getters.map.setLayoutProperty(id, 'visibility', 'visible');
+                }
             }
+        },
+        computed: {
+          filterElements: function() {
+              return store.getters.filterElements;
+          },
+          map: function() {
+              return store.getters.map;
+          }
         },
         data() {
             return {
-                routes: []
+
             }
         }
     }
@@ -76,7 +65,7 @@
     }
 
     .filter-checkbox label.checked::before {
-        background: #f44336;
+        background: #DA291C;
         content: "\2713";
         height: 12px;
         width: 15px;

@@ -38,6 +38,10 @@ function idOfCar(car) {
 	return car.MonitoredVehicleJourney[0].VehicleRef[0];
 }
 
+function titleOfCar(car) {
+	return `${typeOfCar(car)} ${nameOfCar(car)}`
+}
+
 function carToGeoJSON(car) {
 	const MOCK_GEO_JSON = {
 		"type": "FeatureCollection",
@@ -69,4 +73,4 @@ function getCarByLine(lineNumber) {
 	.then((response) => response.data.results)
 }
 
-export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar }
+export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar }
