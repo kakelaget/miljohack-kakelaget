@@ -7,7 +7,7 @@
             </div>
         </form>
         <button class="read-button"
-            v-on:click=" readAllowed = !readAllowed ">Assistert opplesning</button>
+            v-on:click=" readAllowed = !readAllowed ">Skru opplesning {{ !readAllowed ? "på" : "av"}}</button>
         <div class="search-result">
             <div v-bind:class="{ hide : searchResults.length > 0 }">
                 Ingen resultater . . .
@@ -143,7 +143,7 @@ export default {
 
         endedTalking() {
             if(this.talkQueue.length > 0) {
-                window.responsiveVoice.speak(this.talkQueue[0], {onend: this.endedTalking});
+                this.speak(this.talkQueue[0], {onend: this.endedTalking});
                 this.talkQueue.shift();
             } else {
                 this.talking = false;
@@ -151,8 +151,10 @@ export default {
         },
 
         speak(text) {
-            if(this.speakAllowed) {
+            if(this.readAllowed) {
                 window.responsiveVoice.speak(text, "Norwegian Female", {onend: this.endedTalking});
+            } else if(this.talkQueue.length > 0) {
+                this.talkQueue.shift();
             }
         },
 
@@ -161,29 +163,31 @@ export default {
 
             if(this.queueChecklist.length > 0) {
                 var difference = (this.queueChecklist[0].time.getTime() - now.getTime()) / 1000;
+                console.log(difference);
+                console.log(this.talking, this.readAllowed, this.talkQueue);
                 if(difference > -1 && difference < 5) {
-                    console.log(this.queueChecklist[0].title);
+                    console.log(this.talking, this.readAllowed);
                     if(!this.talking) {
-                        this.talking = true;
+                        if(this.readAllowed) this.talking = true;
                         this.speak("Nå kommer buss " + this.queueChecklist[0].title);
                         this.queueChecklist.shift();
-                    } else {
+                    } else if(this.readAllowed){
                         this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     }
                 } else if(difference <= -1) {
                     this.queueChecklist.shift();
                 } else if(Math.floor(difference) == 60) {
                     if(!this.talking) {
-                        this.talking = true;
+                        if(this.readAllowed) this.talking = true;
                         this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
-                    } else {
+                    } else if(this.readAllowed){
                         this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     }
                 } else if(Math.floor(difference) == 120) {
                     if(!this.talking) {
-                        this.talking = true;
+                        if(this.readAllowed) this.talking = true;
                         this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 2 + " minutter.");
-                    } else {
+                    } else if(this.readAllowed){
                         this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     }
                 }
