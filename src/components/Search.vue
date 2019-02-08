@@ -69,18 +69,20 @@ export default {
                 zoom: 19
             });
             const _departures = await service.getStopPlaceDepartures(id, {
-                timeRange: 7200
+                timeRange: 3600
             });
             var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
-                if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
+                //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
                 var arrival = new Date(_departures[i].expectedDepartureTime);
                 var seconds = Math.abs((arrival.getTime() - now.getTime()) / (1000));
                 var minutes = Math.floor(seconds /  60);
                 seconds = Math.floor(seconds - (minutes * 60));
                 this.departures.push({
                     id: _departures[i].serviceJourney.journeyPattern.line.id,
-                    number: _departures[i].serviceJourney.journeyPattern.line.id.split("RUT:Line:")[1],
+                    number: _departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1 ?
+                        _departures[i].serviceJourney.journeyPattern.line.id :
+                        _departures[i].serviceJourney.journeyPattern.line.id.split("RUT:Line:")[1],
                     title: _departures[i].serviceJourney.journeyPattern.line.name,
                     in: {
                         minutes: minutes,
