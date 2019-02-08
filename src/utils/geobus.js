@@ -19,7 +19,7 @@ function getCordsByLineNumber(lineNumber) {
 }
 
 function cordsOfCar(car) {
-	if (car === undefined) { return [0,0] }
+	if (car === undefined) { return false }
 
 	const VehicleCords = car.MonitoredVehicleJourney[0].VehicleLocation[0];
 	return [ parseFloat(VehicleCords.Longitude[0]), parseFloat(VehicleCords.Latitude[0]) ]
