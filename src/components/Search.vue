@@ -84,7 +84,7 @@ export default {
                         "type": "Feature",
                         'properties': {
                             'title': '',
-                            'icon': 'bicycle-15'
+                            'icon': 'bus'
                         },
                         "geometry": {
                             "type": "Point",

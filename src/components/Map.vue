@@ -53,6 +53,9 @@ export default {
     computed: {
         map: function() {
             return store.getters.map;
+        },
+        filterElements: function() {
+            return store.getters.filterElements;
         }
     },
     beforeMount() {
@@ -62,11 +65,11 @@ export default {
 
             const cars = await getCarByLine('19');
 
+
             cars.map((car) => {
                 const carID = idOfCar(car);
 
                 const carCords = cordsOfCar(car);
-
                 if (carID in this.loadedCars && !compare(carCords, cordsOfCar(this.loadedCars[carID]))) {
                     const oldCarCords = cordsOfCar(this.loadedCars[carID])
                     console.log('updating car', carID);
@@ -127,7 +130,7 @@ export default {
             //document.querySelector(".mapboxgl-ctrl-geolocate").click();
             const cars = await getCarByLine('19');
             this.loadedCars = {};
-
+            var filterElements = [];
             cars.map((car) => {
                 const carID = idOfCar(car);
 
@@ -137,11 +140,18 @@ export default {
                 } else {
                     console.log('carID', carID)
                 }
-
+                var currentGeoCar = carToGeoJSON(car);
                 this.map.addSource(carID, {
                     type: 'geojson',
-                    data: carToGeoJSON(car)
-                })
+                    data: currentGeoCar
+                });
+
+                var filterElementToPush = {
+                    show: true,
+                    title: currentGeoCar.features[0].properties.title,
+                    id: carID
+                }
+                filterElements.push(filterElementToPush);
 
                 this.map.addLayer({
                     'id': carID,
@@ -161,6 +171,8 @@ export default {
                     [carID]: car
                 };
             });
+
+            store.dispatch("setFilterElements", filterElements);
         },
     }
 }
