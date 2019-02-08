@@ -13,12 +13,13 @@
             <div v-bind:class="{ hide : !fetchLocale }">
                 Holdeplasser nær deg . . .
             </div>
-            <div v-for="searchResult in searchResults"
+            <div class="search-result-stops"
+                v-for="searchResult in searchResults"
                 v-bind:class="{ hide : searchResults.length == 0}"
                 v-on:click="goToCord(searchResult.id, searchResult.coordinates)">
                 {{searchResult.title}}
             </div>
-            <br />
+            <hr />
             <div v-for="departure in departures"
                 v-bind:class="{ hide : departures.length == 0}">
                 <div v-bind:style="{ color: '#' + departure.color }"
@@ -48,7 +49,7 @@ export default {
             var coordinates = location.coords;
             this.fetchLocale = true;
             this.searchResults = [""];
-            const toFeature = await service.getStopPlacesByPosition(coordinates);
+            const toFeature = await service.getStopPlacesByPosition(coordinates, 600);
             this.searchResults = [];
             for(var i = 0; i < toFeature.length; i++) {
                 if(toFeature[i].id.indexOf("NSR:StopPlace") == -1) continue;
@@ -62,8 +63,8 @@ export default {
                 });
             }
         },
-        async addBikeStops(coords, range) {
 
+        async addBikeStops(coords, range) {
             for(var i = 0; i < this.bikeLayers.length; i++) {
                 store.getters.map.removeLayer(this.bikeLayers[i]);
                 store.getters.map.removeLayer(this.bikeLayers[i].id);
@@ -235,9 +236,23 @@ export default {
     border: 1px solid darkgrey;
 }
 .search-result {
-    padding: 20px;
+    padding: 20px 0;
     overflow: auto;
     height: 100%;
     flex: 1;
 }
+
+.search-result div{
+    padding:10px;
+    cursor: pointer;
+}
+
+.search-result div:hover{
+    background: lightgrey;
+}
+
+.search-result hr {
+    width: 50%;
+}
+
 </style>
