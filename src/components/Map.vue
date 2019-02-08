@@ -27,17 +27,14 @@ export default {
   },
   data() {
   	return {
-  		accessToken: "pk.eyJ1Ijoia2FzcGVycnQiLCJhIjoiY2pydWVyaHl1MDN6djQ0bDVuc3ZseDIzeCJ9.1r8QxHcJboxo3PJArWKOYQ",
+      accessToken: "pk.eyJ1Ijoia2V2aW5taWRib2UiLCJhIjoiY2pydWhlamQyMHJ2NTRhdGN1em5ndXVyMyJ9.Ejdo_3iuuGOD662Bh6es4w",
   		options: {
-        style: 'mapbox://styles/mapbox/outdoors-v9',
+        style: 'mapbox://styles/kevinmidboe/cjrvwyoft1tij1ftb94f75lqs',
+        sprite: 'mapbox://styles/kevinmidboe/cjrvwyoft1tij1ftb94f75lqs',
         center: [10.7601723, 59.9167327],
         zoom: 12,
         minZoom: 0,
         maxZoom: 18,
-        maxBounds: [
-            [10.3874, 59.8137],
-            [11.3129, 60.0184]
-        ]
 	  	},
       loadedCars: [],
       draw: undefined
@@ -111,7 +108,7 @@ export default {
           },
           {
             title: "Dag",
-            uri:"mapbox://styles/mapbox/outdoors-v9"
+            uri:"mapbox://styles/kevinmidboe/cjrvwyoft1tij1ftb94f75lqs"
           }]
         ));
     },
@@ -141,7 +138,8 @@ export default {
           'type': 'symbol',
           'source': carID,
           'layout': {
-            'icon-image': '{icon}-15',
+            'icon-image': '{icon}',
+            "icon-size": 0.7,
             'text-field': '{title}',
             'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
             'text-offset': [0, 0.6],

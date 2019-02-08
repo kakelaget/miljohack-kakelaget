@@ -1,6 +1,11 @@
 import axios from 'axios';
 
 const BASE_URL = `http://localhost:${process.env.VUE_APP_MH_PORT}`
+const CAR_TYPES = {
+	'Sporvognsdrift': 'Trikk',
+	'Nobina': 'Buss'
+
+}
 
 function getCordsByLineNumber(lineNumber) {
 
@@ -24,7 +29,7 @@ function nameOfCar(car) {
 }
 
 function typeOfCar(car) {
-	return 'Trikk'
+	return CAR_TYPES[car.MonitoredVehicleJourney[0].OperatorRef[0]]
 }
 
 function idOfCar(car) {
@@ -38,7 +43,7 @@ function carToGeoJSON(car) {
     	"type": "Feature",
       'properties': {
         'title': '',
-        'icon': 'bus'
+        'icon': '',
       },
       "geometry": {
       	"type": "Point",
@@ -48,6 +53,7 @@ function carToGeoJSON(car) {
 	}
 	const geoJson = MOCK_GEO_JSON;
 	geoJson.features[0].properties.title = `${typeOfCar(car)} ${nameOfCar(car)}`
+	geoJson.features[0].properties.icon = typeOfCar(car);
 	geoJson.features[0].geometry.coordinates = cordsOfCar(car)
 	
 	return geoJson
