@@ -52,7 +52,7 @@ export default {
       if (this.loadedCars.length < 1)
         return
 
-      const cars = await getCarByLine('19');
+      const cars = await getCarByLine('30');
 
       cars.map((car) => {
         const carID = idOfCar(car);
@@ -122,7 +122,7 @@ export default {
     async mapLoaded(map) {
     	//this.map = map;
 
-      const cars = await getCarByLine('19');
+      const cars = await getCarByLine('30');
       this.loadedCars = {};
 
       cars.map((car) => {
@@ -146,7 +146,7 @@ export default {
           'source': carID,
           'layout': {
             'icon-image': '{icon}',
-            "icon-size": 0.7,
+            "icon-size": 0.5,
             'text-field': '{title}',
             'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
             'text-offset': [0, 0.6],
