@@ -221,4 +221,8 @@ export default {
     background-size: 70%;
 }
 
+.mapbox-gl-draw_ctrl-draw-btn {
+    display: none !important;
+}
+
 </style>
