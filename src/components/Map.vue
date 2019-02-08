@@ -21,10 +21,11 @@ import Mapbox from 'mapbox-gl-vue';
 import MapboxTraffic from '@mapbox/mapbox-gl-traffic';
 import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
 import axios from 'axios';
-import { getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar} from '@/utils/geobus.js'
+import { getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar, routeGeoJson} from '@/utils/geobus.js'
 const service = new EnturService({ clientName: 'miljohack-ruterentur' })
 import { geoToCords, compare } from '@/utils/helper.js'
 import { newCarLayer } from '@/utils/mapBox.js'
+import socketData from '@/utils/websockets.js';
 
 var MapboxDraw = require('@mapbox/mapbox-gl-draw');
 
@@ -111,9 +112,9 @@ export default {
               const carID = idOfCar(car);
               if (carID in this.loadedCars)
                 return
-              
+
               newCarLayer(car);
-              
+
               this.loadedCars = {
                 ...this.loadedCars,
                 [carID]: car
@@ -130,10 +131,69 @@ export default {
       })
     },
     updateRoutes(routes) {
+      const _latestSocketData = socketData();
+      console.log(_latestSocketData);
+      _latestSocketData.map((latestSocketData) => {
+      if (latestSocketData !== undefined) {
+        // console.log("Received new socket data", latestSocketData)
+        const vehicleId = latestSocketData.vehicle_id
+        const car = {
+            coords: [latestSocketData.lng, latestSocketData.lat],
+            id: vehicleId
+        };
+        const geoJson = routeGeoJson(car);
+
+
+        //const layer = newCarLayer(car);
+         /*const someFeature = {
+          id: vehicleId,
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Point',
+                coordinates:
+                  [latestSocketData.lng, latestSocketData.lat],
+                  // [10.7601723, 59.9167327],
+            }
+        };*/
+
+
+
+        if(this.loadedCars[vehicleId] != undefined) {
+            if(this.loadedCars[vehicleId] == car) return;
+            this.map.getSource(vehicleId).setData(geoJson);
+            this.loadedCars[vehicleId] = car;
+
+                console.log("qqqq");
+        } else {
+            this.map.addSource(vehicleId, {
+              type: 'geojson',
+              data: geoJson
+            })
+
+            this.map.addLayer({
+              'id': vehicleId,
+              'type': 'symbol',
+              'source': vehicleId,
+              'layout': {
+                'icon-allow-overlap': true,
+                'icon-image': '{icon}',
+                "icon-size": 0.7,
+                'text-field': '{title}',
+                'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                'text-offset': [0, 0.6],
+                'text-anchor': 'top'
+              }
+          });
+          this.loadedCars[vehicleId] = car;
+            //this.draw.add(layer);
+        }
+
+    }})
+
       routes.map((route) => {
         getCarByLine(route)
           .then((cars) => {
-            console.log('car', this.loadedCars)
 
             cars.map((car) => {
               const carID = idOfCar(car);

@@ -42,6 +42,25 @@ function titleOfCar(car) {
 	return `${typeOfCar(car)} ${nameOfCar(car)}`
 }
 
+function routeGeoJson(car) {
+	const MOCK_GEO_JSON = {
+		"type": "FeatureCollection",
+	    "features": [{
+	    	"type": "Feature",
+	      'properties': {
+	        'title': car.id,
+	        "description": "<strong>Make it Mount Pleasant</strong><p><a href=\"http://www.mtpleasantdc.com/makeitmtpleasant\" target=\"_blank\" title=\"Opens in a new window\">Make it Mount Pleasant</a> is a handmade and vintage market and afternoon of live entertainment and kids activities. 12:00-6:00 p.m.</p>",
+	        'icon': 'Buss',
+	      },
+	      "geometry": {
+	      	"type": "Point",
+	        "coordinates": car.coords
+	      }
+	    }]
+	};
+	return MOCK_GEO_JSON;
+}
+
 function carToGeoJSON(car) {
 	const MOCK_GEO_JSON = {
 		"type": "FeatureCollection",
@@ -73,4 +92,4 @@ function getCarByLine(lineNumber) {
 	.then((response) => response.data.results)
 }
 
-export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar }
+export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar, routeGeoJson }
