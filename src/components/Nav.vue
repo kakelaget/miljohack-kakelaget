@@ -2,7 +2,8 @@
     <div class="nav-container"
         v-bind:class="{ night: dark }">
         <h1 class="nav-header">
-            <img src="../assets/logo_new.png" alt="RuterNå logo" />
+            <!--<img src="../assets/ruterna__2.png" alt="RuterNå logo" />-->
+            Ruter<span style="font-weight:100">Nå</span>
         </h1>
         <Accordion :accordionItems="accordionComponents"></Accordion>
     </div>
@@ -61,6 +62,8 @@
     height: 100px;
     margin: 0;
     align-items: center;
+    font-weight: 900;
+    color: white;
 }
 
 .nav-header img {
