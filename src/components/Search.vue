@@ -170,26 +170,26 @@ export default {
                     console.log(this.talking, this.readAllowed);
                     if(!this.talking) {
                         if(this.readAllowed) this.talking = true;
-                        this.speak("Nå kommer buss " + this.queueChecklist[0].title);
+                        this.speak("Nå kommer rute " + this.queueChecklist[0].title);
                         this.queueChecklist.shift();
                     } else if(this.readAllowed){
-                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                        this.talkQueue.push("Nå kommer rute " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     }
                 } else if(difference <= -1) {
                     this.queueChecklist.shift();
                 } else if(Math.floor(difference) == 60) {
                     if(!this.talking) {
                         if(this.readAllowed) this.talking = true;
-                        this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                        this.speak("Nå kommer rute " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     } else if(this.readAllowed){
-                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                        this.talkQueue.push("Nå kommer rute " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     }
                 } else if(Math.floor(difference) == 120) {
                     if(!this.talking) {
                         if(this.readAllowed) this.talking = true;
-                        this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 2 + " minutter.");
+                        this.speak("Nå kommer rute " + this.queueChecklist[0].title + " om " + 2 + " minutter.");
                     } else if(this.readAllowed){
-                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                        this.talkQueue.push("Nå kommer rute " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
                     }
                 }
             }
