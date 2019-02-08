@@ -108,7 +108,8 @@ export default {
                         'text-field': list[i].bikesAvailable + " ledig av " + list[i].spacesAvailable,
                         'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
                         'text-offset': [0, 0.6],
-                        'text-anchor': 'top'
+                        'text-anchor': 'top',
+                        'icon-size': 2
                     }
                 };
 
