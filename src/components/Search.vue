@@ -63,12 +63,13 @@ export default {
             }
         },
         async addBikeStops(coords, range) {
-            for(var i = 0; i < this.bikeSources.length; i++) {
-                store.getters.map.removeSource(this.bikeSources[i]);
-            }
+
             for(var i = 0; i < this.bikeLayers.length; i++) {
                 store.getters.map.removeLayer(this.bikeLayers[i]);
                 store.getters.map.removeLayer(this.bikeLayers[i].id);
+            }
+            for(var i = 0; i < this.bikeSources.length; i++) {
+                store.getters.map.removeSource(this.bikeSources[i]);
             }
             this.bikeLayers = [];
             this.bikeSources = [];
@@ -141,12 +142,19 @@ export default {
                     coordinates[0],
                     coordinates[1]
                 ],
-                zoom: 19
+                zoom: 16
             });
 
             const _departures = await service.getStopPlaceDepartures(id, {
                 timeRange: 3600
             });
+
+            if(this.marker != undefined) this.marker.remove();
+
+            this.marker = new mapboxgl.Marker()
+            .setLngLat(coordinates)
+            .addTo(store.getters.map);
+
             var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
                 //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
@@ -186,6 +194,7 @@ export default {
             fetchLocale: false,
             bikeSources: [],
             bikeLayers: [],
+            marker: null
         }
     }
 };
