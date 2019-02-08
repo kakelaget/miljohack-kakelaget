@@ -19,6 +19,8 @@ function getCordsByLineNumber(lineNumber) {
 }
 
 function cordsOfCar(car) {
+	if (car === undefined) { return [0,0] }
+
 	const VehicleCords = car.MonitoredVehicleJourney[0].VehicleLocation[0];
 	return [ parseFloat(VehicleCords.Longitude[0]), parseFloat(VehicleCords.Latitude[0]) ]
 	// return { long: VehicleCords.Longitude[0], lat: VehicleCords.Latitude[0] }
@@ -36,6 +38,10 @@ function idOfCar(car) {
 	return car.MonitoredVehicleJourney[0].VehicleRef[0];
 }
 
+function titleOfCar(car) {
+	return `${typeOfCar(car)} ${nameOfCar(car)}`
+}
+
 function carToGeoJSON(car) {
 	const MOCK_GEO_JSON = {
 		"type": "FeatureCollection",
@@ -43,6 +49,7 @@ function carToGeoJSON(car) {
     	"type": "Feature",
       'properties': {
         'title': '',
+        "description": "<strong>Make it Mount Pleasant</strong><p><a href=\"http://www.mtpleasantdc.com/makeitmtpleasant\" target=\"_blank\" title=\"Opens in a new window\">Make it Mount Pleasant</a> is a handmade and vintage market and afternoon of live entertainment and kids activities. 12:00-6:00 p.m.</p>",
         'icon': '',
       },
       "geometry": {
@@ -66,4 +73,4 @@ function getCarByLine(lineNumber) {
 	.then((response) => response.data.results)
 }
 
-export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar }
+export { getCordsByLineNumber, getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar }

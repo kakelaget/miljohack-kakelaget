@@ -21,9 +21,10 @@ import Mapbox from 'mapbox-gl-vue';
 import MapboxTraffic from '@mapbox/mapbox-gl-traffic';
 import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
 import axios from 'axios';
-import { getCarByLine, carToGeoJSON, idOfCar, cordsOfCar } from '@/utils/geobus.js'
+import { getCarByLine, carToGeoJSON, idOfCar, cordsOfCar, titleOfCar} from '@/utils/geobus.js'
 const service = new EnturService({ clientName: 'miljohack-ruterentur' })
 import { geoToCords, compare } from '@/utils/helper.js'
+import { newCarLayer } from '@/utils/mapBox.js'
 
 var MapboxDraw = require('@mapbox/mapbox-gl-draw');
 
@@ -33,16 +34,19 @@ export default {
         MapboxTraffic
     },
     data() {
-        return {
-            accessToken: "pk.eyJ1Ijoia2FzcGVycnQiLCJhIjoiY2pydWVyaHl1MDN6djQ0bDVuc3ZseDIzeCJ9.1r8QxHcJboxo3PJArWKOYQ",
-            options: {
-                style: 'mapbox://styles/mapbox/outdoors-v9',
+      	return {
+            accessToken: "pk.eyJ1Ijoia2V2aW5taWRib2UiLCJhIjoiY2pydWhlamQyMHJ2NTRhdGN1em5ndXVyMyJ9.Ejdo_3iuuGOD662Bh6es4w",
+      		options: {
+                style: 'mapbox://styles/kevinmidboe/cjrvwyoft1tij1ftb94f75lqs',
+                sprite: 'mapbox://styles/kevinmidboe/cjrvwyoft1tij1ftb94f75lqs',
                 center: [10.7601723, 59.9167327],
                 zoom: 12,
                 minZoom: 0,
-                maxZoom: 18,
-
+                maxZoom: 18
             },
+            loadedCars: [],
+            draw: undefined,
+            selectedRoutes: [12, 13, 19, 18, 30, 32],
             geolocateControl: {
                 show: true, position: 'bottom-left', options: {}
             },
@@ -57,124 +61,126 @@ export default {
         filterElements: function() {
             return store.getters.filterElements;
         }
+  },
+  beforeMount() {
+    setTimeout(() => {
+      window.setInterval(async () => {
+      this.updateRoutes(this.selectedRoutes)
+    }, 1000);
+    }, 4000)
+  },
+  methods: {
+  	mapClicked(map, e) {
+      // alert('Map Clicked!');
     },
-    beforeMount() {
-        window.setInterval(async () => {
-            if (this.loadedCars.length < 1)
-            return
+  	geolocate(control, position) {
+      console.log(`User position: ${position.coords.latitude}, ${position.coords.longitude}`);
+    },
+    mapInitialized: function(map) {
+        store.dispatch("setMap", map);
+        this.draw = new MapboxDraw({
+          'displayControlsDefault': false,
+        })
 
-            const cars = await getCarByLine('19');
+        map.addControl(this.draw, 'top-left')
 
+        map.addControl(new MapboxTraffic({
+          // showTraffic: true
+        }));
+
+        map.addControl(new MapboxStyleSwitcherControl(
+          [{
+            title: "Natt",
+            uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
+          },
+          {
+            title: "Dag",
+            uri:"mapbox://styles/kevinmidboe/cjrvwyoft1tij1ftb94f75lqs"
+          }]
+        ));
+    },
+    mapLoaded(map) {
+        this.layerRoutes(this.selectedRoutes)
+    },
+    layerRoutes(routes) {
+      routes.map((route) => {
+        getCarByLine(route)
+          .then((cars) => {
 
             cars.map((car) => {
-                const carID = idOfCar(car);
+              const carID = idOfCar(car);
+              if (carID in this.loadedCars)
+                return
+              
+              newCarLayer(car);
+              
+              this.loadedCars = {
+                ...this.loadedCars,
+                [carID]: car
+              };
 
-                const carCords = cordsOfCar(car);
-                if (carID in this.loadedCars && !compare(carCords, cordsOfCar(this.loadedCars[carID]))) {
-                    const oldCarCords = cordsOfCar(this.loadedCars[carID])
-                    console.log('updating car', carID);
-                    this.map.getSource(carID).setData(carToGeoJSON(car));
-
-                    var feature = {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: [
-                                oldCarCords,
-                                carCords
-                            ]
-                        }
-                    };
-
-                    var featureIds = this.draw.add(feature);
-
-                    this.loadedCars = {
-                        ...this.loadedCars,
-                        [carID]: car
-                    };
-
-                }
-            })
-        }, 1000);
-    },
-    methods: {
-        mapClicked(map, e) {
-            alert('Map Clicked!');
-        },
-        geolocate(control, position) {
-            this.$root.$emit('fetchAndSearchLocaleRoute', position);
-        },
-        mapInitialized: function(map) {
-            store.dispatch("setMap", map);
-            this.draw = new MapboxDraw()
-            map.addControl(this.draw, "top-left")
-
-            map.addControl(new MapboxTraffic({
-                showTraffic: true
-            }));
-
-            map.addControl(new MapboxStyleSwitcherControl(
-                [{
-                    title: "Natt",
-                    uri:"mapbox://styles/kasperrt/cjruk4dqr0kl31foaivs6eml9"
-                },
-                {
-                    title: "Dag",
-                    uri:"mapbox://styles/mapbox/outdoors-v9"
-                }]
-            ));
-        },
-        async mapLoaded(map) {
-            //this.map = map;
-            //document.querySelector(".mapboxgl-ctrl-geolocate").click();
-            const cars = await getCarByLine('19');
-            this.loadedCars = {};
-            var filterElements = [];
-            cars.map((car) => {
-                const carID = idOfCar(car);
-
-                if (this.loadedCars.carID) {
-                    console.log('car exists with id', carID)
-                    return
-                } else {
-                    console.log('carID', carID)
-                }
-                var currentGeoCar = carToGeoJSON(car);
-                this.map.addSource(carID, {
-                    type: 'geojson',
-                    data: currentGeoCar
-                });
-
-                var filterElementToPush = {
+               var filterElementToPush = {
                     show: true,
-                    title: currentGeoCar.features[0].properties.title,
+                    title: titleOfCar(car),
                     id: carID
                 }
-                filterElements.push(filterElementToPush);
+                this.filterElements.push(filterElementToPush);
+            })
+          })
+      })
+    },
+    updateRoutes(routes) {
+      routes.map((route) => {
+        getCarByLine(route)
+          .then((cars) => {
+            console.log('car', this.loadedCars)
 
-                this.map.addLayer({
-                    'id': carID,
-                    'type': 'symbol',
-                    'source': carID,
-                    'layout': {
-                        'icon-image': '{icon}-15',
-                        'text-field': '{title}',
-                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-                        'text-offset': [0, 0.6],
-                        'text-anchor': 'top'
-                    }
-                })
+            cars.map((car) => {
+              const carID = idOfCar(car);
+              const carCords = cordsOfCar(car);
 
-                this.loadedCars = {
-                    ...this.loadedCars,
-                    [carID]: car
+              if (this.loadedCars[carID] === undefined) {
+                console.log('THIS CAR WAS NOT REG')
+                return
+              }
+              if (! this.loadedCars[carID]) { return }
+
+              const oldCarCords = cordsOfCar(this.loadedCars[carID])
+
+              if (!compare(carCords, oldCarCords)) {
+
+                console.log('drawing line')
+                this.map.getSource(carID).setData(carToGeoJSON(car));
+
+                var feature = {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                      oldCarCords,
+                      carCords
+                    ]
+                  }
                 };
-            });
 
-            store.dispatch("setFilterElements", filterElements);
-        },
-    }
+                this.draw.add(feature);
+
+                // this.map.flyTo({
+                //   center: carCords,
+                //   zoom: 16
+                // })
+              }
+
+              this.loadedCars = {
+                ...this.loadedCars,
+                [carID]: car
+              };
+            })
+          })
+      })
+    },
+  }
 }
 </script>
 
