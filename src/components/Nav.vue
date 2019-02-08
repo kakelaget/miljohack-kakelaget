@@ -33,7 +33,7 @@
                         Component: Search
                     },
                     {
-                        title: "Busser",
+                        title: "Filtrer",
                         Component: Filter
                     }
                 ],
