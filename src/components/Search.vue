@@ -122,6 +122,7 @@ export default {
         goToCurrentCordsofBus(id) {
             var fullId = id;
             var smallId = id.split("RUT:Line:")[1];
+            console.log(fullId, smallId);
         },
         async processSearch() {
             this.searchResults = [];
