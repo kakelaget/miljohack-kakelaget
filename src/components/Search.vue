@@ -73,7 +73,7 @@ export default {
             });
             var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
-                //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
+                if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
                 var arrival = new Date(_departures[i].expectedDepartureTime);
                 var seconds = Math.abs((arrival.getTime() - now.getTime()) / (1000));
                 var minutes = Math.floor(seconds /  60);
