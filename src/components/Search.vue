@@ -6,6 +6,8 @@
                 <input type="submit" value="Søk" class="input-submit" />
             </div>
         </form>
+        <button class="read-button"
+            v-on:click=" readAllowed = !readAllowed ">Assistert opplesning</button>
         <div class="search-result">
             <div v-bind:class="{ hide : searchResults.length > 0 }">
                 Ingen resultater . . .
@@ -138,8 +140,60 @@ export default {
             }
 
         },
+
+        endedTalking() {
+            if(this.talkQueue.length > 0) {
+                window.responsiveVoice.speak(this.talkQueue[0], {onend: this.endedTalking});
+                this.talkQueue.shift();
+            } else {
+                this.talking = false;
+            }
+        },
+
+        speak(text) {
+            if(this.speakAllowed) {
+                window.responsiveVoice.speak(text, "Norwegian Female", {onend: this.endedTalking});
+            }
+        },
+
+        timeoutFunction() {
+            var now = new Date();
+
+            if(this.queueChecklist.length > 0) {
+                var difference = (this.queueChecklist[0].time.getTime() - now.getTime()) / 1000;
+                if(difference > -1 && difference < 5) {
+                    console.log(this.queueChecklist[0].title);
+                    if(!this.talking) {
+                        this.talking = true;
+                        this.speak("Nå kommer buss " + this.queueChecklist[0].title);
+                        this.queueChecklist.shift();
+                    } else {
+                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    }
+                } else if(difference <= -1) {
+                    this.queueChecklist.shift();
+                } else if(Math.floor(difference) == 60) {
+                    if(!this.talking) {
+                        this.talking = true;
+                        this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    } else {
+                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    }
+                } else if(Math.floor(difference) == 120) {
+                    if(!this.talking) {
+                        this.talking = true;
+                        this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 2 + " minutter.");
+                    } else {
+                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    }
+                }
+            }
+            this.queueTimeout = setTimeout(this.timeoutFunction, 1000);
+        },
+
         async goToCord(id, coordinates) {
             this.departures = [];
+            clearTimeout(this.queueTimeout);
             store.getters.map.flyTo({
                 center: [
                     coordinates[0],
@@ -157,7 +211,10 @@ export default {
             this.marker = new mapboxgl.Marker()
                 .setLngLat(coordinates)
                 .addTo(store.getters.map);
-            console.log(JSON.stringify(_departures));
+
+            this.queueChecklist = [];
+            this.queueTimeout = setTimeout(this.timeoutFunction, 1000);
+
             var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
                 //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
@@ -165,6 +222,12 @@ export default {
                 var seconds = Math.abs((arrival.getTime() - now.getTime()) / (1000));
                 var minutes = Math.floor(seconds /  60);
                 seconds = Math.floor(seconds - (minutes * 60));
+
+                this.queueChecklist.push({
+                    title: _departures[i].serviceJourney.journeyPattern.line.name,
+                    time: new Date(_departures[i].expectedDepartureTime),
+                    id: _departures[i].serviceJourney.journeyPattern.line.id
+                });
                 this.departures.push({
                     id: _departures[i].serviceJourney.journeyPattern.line.id,
                     number: _departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1 ?
@@ -191,13 +254,18 @@ export default {
     },
     data(){
         return {
+            queueTimeout: null,
+            queueChecklist: [],
             searchText: "",
             searchResults: [],
             departures: [],
             fetchLocale: false,
             bikeSources: [],
             bikeLayers: [],
-            marker: null
+            marker: null,
+            talking: false,
+            talkQueue: [],
+            readAllowed: false,
         }
     }
 };
@@ -250,6 +318,28 @@ export default {
     overflow: auto;
     height: 100%;
     flex: 1;
+}
+
+.read-button {
+    height: 50px;
+    background: darkgrey;
+    font-size: 1rem;
+    font-weight: lighter;
+    width: 90%;
+    position: relative;
+    /* display: flex; */
+    left: 0;
+    right: 0;
+    margin: auto;
+    border: 1px solid whitesmoke;
+    cursor: pointer;
+    color: whitesmoke;
+}
+
+.read-button:hover {
+    color: darkgrey;
+    background-color: whitesmoke;
+    border: 1px solid darkgrey;
 }
 
 .search-result div{

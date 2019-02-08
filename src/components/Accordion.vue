@@ -4,9 +4,9 @@
             <li v-for="(accordionItem, index) in accordionItems"
                 v-bind:class="{ active: (activeElement == index) }"
                 v-on:click="activeElement = index">
-                <div class="accordion-header">
+                <h2 class="accordion-header">
                     {{accordionItem.title}}
-                </div>
+                </h2>
                 <div class="accordion-body">
                     <component :is="accordionItem.Component"></component>
                 </div>
@@ -66,11 +66,12 @@
         background: #f0f0f0;
     }
 
-    div.accordion-header {
+    h2.accordion-header {
         font-size: 1.2rem;
         color: black;
-        padding: 0 20px 20px 20px;
-        padding-bottom: 20px;
+		margin: 0;
+		font-weight: 500;
+		padding: 0 20px 20px;
     }
 
     div.accordion-body {

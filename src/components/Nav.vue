@@ -1,9 +1,9 @@
 <template>
     <div class="nav-container"
         v-bind:class="{ night: dark }">
-        <div class="nav-header">
+        <h1 class="nav-header">
             Ruter nå
-        </div>
+        </h1>
         <Accordion :accordionItems="accordionComponents"></Accordion>
     </div>
 </template>
@@ -60,5 +60,7 @@
     font-weight: bolder;
     font-size: 2rem;
     padding: 40px;
+    margin: 0;
+    padding-left: 20px;
 }
 </style>
