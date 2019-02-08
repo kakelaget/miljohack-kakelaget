@@ -11,25 +11,91 @@
                 Ingen resultater . . .
             </div>
             <div v-for="searchResult in searchResults"
-                v-bind:class="{ hide : searchResults.length == 0}">
-                {{searchResult}}
+                v-bind:class="{ hide : searchResults.length == 0}"
+                v-on:click="goToCord(searchResult.id, searchResult.coordinates)">
+                {{searchResult.title}}
+            </div>
+            <br />
+            <div v-for="departure in departures"
+                v-bind:class="{ hide : departures.length == 0}">
+                <div v-bind:style="{ color: '#' + departure.color }"
+                    v-on:click="goToCurrentCordsofBus(departure.id)">
+                    {{ departure.number }} - {{ departure.title }} om {{ departure.in.minutes }} min og {{ departure.in.seconds }} sek.
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+
+import EnturService from '@entur/sdk';
+import store from '@/utils/store.js';
+
+const service = new EnturService({ clientName: 'miljohack-ruterentur' })
+
 export default {
+    computed: {
+      map: function() {
+          return store.getters.map;
+      }
+    },
     methods: {
-        processSearch() {
-            this.searchResults.push(this.searchText);
-            this.searchText = "";
+        goToCurrentCordsofBus(id) {
+            var fullId = id;
+            var smallId = id.split("RUT:Line:")[1];
+        },
+        async processSearch() {
+            this.searchResults = [];
+
+            const toFeature = await service.getFeatures(this.searchText);
+            for(var i = 0; i < toFeature.length; i++) {
+                if(toFeature[i].properties.id.indexOf("NSR:StopPlace") == -1) continue;
+                this.searchResults.push({
+                    title: toFeature[i].properties.name,
+                    coordinates: toFeature[i].geometry.coordinates,
+                    id: toFeature[i].properties.id
+                });
+            }
+
+        },
+        async goToCord(id, coordinates) {
+            this.departures = [];
+            store.getters.map.flyTo({
+                center: [
+                    coordinates[0],
+                    coordinates[1]
+                ],
+                zoom: 19
+            });
+            const _departures = await service.getStopPlaceDepartures(id, {
+                timeRange: 7200
+            });
+            var now = new Date();
+            for(var i = 0; i < _departures.length; i++) {
+                //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
+                var arrival = new Date(_departures[i].expectedDepartureTime);
+                var seconds = Math.abs((arrival.getTime() - now.getTime()) / (1000));
+                var minutes = Math.floor(seconds /  60);
+                seconds = Math.floor(seconds - (minutes * 60));
+                this.departures.push({
+                    id: _departures[i].serviceJourney.journeyPattern.line.id,
+                    number: _departures[i].serviceJourney.journeyPattern.line.id.split("RUT:Line:")[1],
+                    title: _departures[i].serviceJourney.journeyPattern.line.name,
+                    in: {
+                        minutes: minutes,
+                        seconds: seconds
+                    },
+                    color: _departures[i].serviceJourney.journeyPattern.line.presentation.colour,
+                });
+            }
         }
     },
     data(){
         return {
             searchText: "",
-            searchResults: []
+            searchResults: [],
+            departures: []
         }
     }
 };
