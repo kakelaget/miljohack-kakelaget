@@ -38,7 +38,7 @@ const updater = function(event) {
 "course":109 }"
 */
 
-window.setInterval(updater);
+window.setInterval(updater, 5000);
 
 function returnAndClear() {
     var qq = things.splice(0, things.length);
