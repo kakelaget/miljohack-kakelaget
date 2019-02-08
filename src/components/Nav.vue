@@ -2,7 +2,7 @@
     <div class="nav-container"
         v-bind:class="{ night: dark }">
         <div class="nav-header">
-            Ruter maps
+            Ruter nå
         </div>
         <Accordion :accordionItems="accordionComponents"></Accordion>
     </div>
