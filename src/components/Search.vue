@@ -153,6 +153,7 @@ export default {
         speak(text) {
             if(this.readAllowed) {
                 window.responsiveVoice.speak(text, "Norwegian Female", {onend: this.endedTalking});
+                this.talkQueue.shift();
             } else if(this.talkQueue.length > 0) {
                 this.talkQueue.shift();
             }
