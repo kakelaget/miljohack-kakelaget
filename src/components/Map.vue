@@ -24,6 +24,7 @@ import axios from 'axios';
 import { getCarByLine, carToGeoJSON, idOfCar, cordsOfCar } from '@/utils/geobus.js'
 const service = new EnturService({ clientName: 'miljohack-ruterentur' })
 import { geoToCords, compare } from '@/utils/helper.js'
+import socketData from '@/utils/websockets.js';
 
 var MapboxDraw = require('@mapbox/mapbox-gl-draw');
 
@@ -94,6 +95,33 @@ export default {
                         [carID]: car
                     };
 
+                }
+
+                // SKLIRG DOES SHIT
+                const latestSocketData = socketData[socketData.length-1];
+                if (latestSocketData !== undefined) {
+                  // console.log("Received new socket data", latestSocketData)
+                  const vehicleId = latestSocketData.vehicle_id
+
+                  const someFeature = {
+                    id: vehicleId,
+                      type: 'Feature',
+                      properties: {},
+                      geometry: {
+                        type: 'Point',
+                          coordinates:
+                            [latestSocketData.lng, latestSocketData.lat],
+                            // [10.7601723, 59.9167327],
+                      }
+                  };
+
+                  if (this.map.getSource(vehicleId) !== undefined) {
+                    console.log("Data already exists")
+                    this.map.getSource(vehicleId).setData(someFeature)
+                  } else {
+                    console.log("Adding new data point", vehicleId)
+                    this.draw.add(someFeature);
+                  }
                 }
             })
         }, 1000);
