@@ -1,9 +1,9 @@
 <template>
     <div class="nav-container"
         v-bind:class="{ night: dark }">
-        <div class="nav-header">
-            Ruter nå
-        </div>
+        <h1 class="nav-header">
+            <img src="../assets/logo_new.png" alt="RuterNå logo" />
+        </h1>
         <Accordion :accordionItems="accordionComponents"></Accordion>
     </div>
 </template>
@@ -55,10 +55,15 @@
     filter: invert(85%);
 }
 .nav-header {
-    background: #f5f5f5;
-    color: black;
-    font-weight: bolder;
-    font-size: 2rem;
-    padding: 40px;
+    display: flex;
+    justify-content: center;
+    background: #911f91;
+    height: 100px;
+    margin: 0;
+    align-items: center;
+}
+
+.nav-header img {
+    height: 100px;
 }
 </style>

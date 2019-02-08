@@ -65,7 +65,7 @@
     }
 
     .filter-checkbox label.checked::before {
-        background: #f44336;
+        background: #DA291C;
         content: "\2713";
         height: 12px;
         width: 15px;

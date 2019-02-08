@@ -18,6 +18,9 @@ export default {
     Map,
     Nav,
   },
+  created() {
+    document.title = "RuterNå";
+  },
   methods: {
       changeTime: function() {
           this.dark = !this.dark;

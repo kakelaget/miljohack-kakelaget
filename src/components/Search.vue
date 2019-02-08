@@ -6,6 +6,8 @@
                 <input type="submit" value="Søk" class="input-submit" />
             </div>
         </form>
+        <button class="read-button"
+            v-on:click=" readAllowed = !readAllowed ">Skru opplesning {{ !readAllowed ? "på" : "av"}}</button>
         <div class="search-result">
             <div v-bind:class="{ hide : searchResults.length > 0 }">
                 Ingen resultater . . .
@@ -138,8 +140,64 @@ export default {
             }
 
         },
+
+        endedTalking() {
+            if(this.talkQueue.length > 0) {
+                this.speak(this.talkQueue[0], {onend: this.endedTalking});
+                this.talkQueue.shift();
+            } else {
+                this.talking = false;
+            }
+        },
+
+        speak(text) {
+            if(this.readAllowed) {
+                window.responsiveVoice.speak(text, "Norwegian Female", {onend: this.endedTalking});
+            } else if(this.talkQueue.length > 0) {
+                this.talkQueue.shift();
+            }
+        },
+
+        timeoutFunction() {
+            var now = new Date();
+
+            if(this.queueChecklist.length > 0) {
+                var difference = (this.queueChecklist[0].time.getTime() - now.getTime()) / 1000;
+                console.log(difference);
+                console.log(this.talking, this.readAllowed, this.talkQueue);
+                if(difference > -1 && difference < 5) {
+                    console.log(this.talking, this.readAllowed);
+                    if(!this.talking) {
+                        if(this.readAllowed) this.talking = true;
+                        this.speak("Nå kommer buss " + this.queueChecklist[0].title);
+                        this.queueChecklist.shift();
+                    } else if(this.readAllowed){
+                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    }
+                } else if(difference <= -1) {
+                    this.queueChecklist.shift();
+                } else if(Math.floor(difference) == 60) {
+                    if(!this.talking) {
+                        if(this.readAllowed) this.talking = true;
+                        this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    } else if(this.readAllowed){
+                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    }
+                } else if(Math.floor(difference) == 120) {
+                    if(!this.talking) {
+                        if(this.readAllowed) this.talking = true;
+                        this.speak("Nå kommer buss " + this.queueChecklist[0].title + " om " + 2 + " minutter.");
+                    } else if(this.readAllowed){
+                        this.talkQueue.push("Nå kommer buss " + this.queueChecklist[0].title + " om " + 60 + " sekunder.");
+                    }
+                }
+            }
+            this.queueTimeout = setTimeout(this.timeoutFunction, 1000);
+        },
+
         async goToCord(id, coordinates) {
             this.departures = [];
+            clearTimeout(this.queueTimeout);
             store.getters.map.flyTo({
                 center: [
                     coordinates[0],
@@ -157,7 +215,10 @@ export default {
             this.marker = new mapboxgl.Marker()
                 .setLngLat(coordinates)
                 .addTo(store.getters.map);
-            console.log(JSON.stringify(_departures));
+
+            this.queueChecklist = [];
+            this.queueTimeout = setTimeout(this.timeoutFunction, 1000);
+
             var now = new Date();
             for(var i = 0; i < _departures.length; i++) {
                 //if(_departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1) continue;
@@ -165,6 +226,12 @@ export default {
                 var seconds = Math.abs((arrival.getTime() - now.getTime()) / (1000));
                 var minutes = Math.floor(seconds /  60);
                 seconds = Math.floor(seconds - (minutes * 60));
+
+                this.queueChecklist.push({
+                    title: _departures[i].serviceJourney.journeyPattern.line.name,
+                    time: new Date(_departures[i].expectedDepartureTime),
+                    id: _departures[i].serviceJourney.journeyPattern.line.id
+                });
                 this.departures.push({
                     id: _departures[i].serviceJourney.journeyPattern.line.id,
                     number: _departures[i].serviceJourney.journeyPattern.line.id.indexOf("RUT:Line:") == -1 ?
@@ -191,13 +258,18 @@ export default {
     },
     data(){
         return {
+            queueTimeout: null,
+            queueChecklist: [],
             searchText: "",
             searchResults: [],
             departures: [],
             fetchLocale: false,
             bikeSources: [],
             bikeLayers: [],
-            marker: null
+            marker: null,
+            talking: false,
+            talkQueue: [],
+            readAllowed: false,
         }
     }
 };
@@ -224,7 +296,7 @@ export default {
 .input-field {
     background: transparent;
     border: none;
-    border-bottom: 1px solid grey;
+    border-bottom: 1px solid #A2AAAD;
     padding: 10px;
     margin: 0 20px 0 0px;
     font-size: 1rem;
@@ -235,14 +307,14 @@ export default {
     padding: 10px;
     font-size: 1rem;
     color: grey;
-    border: 1px solid darkgrey;
+    border: 1px solid #A2AAAD;
     cursor: pointer;
 }
 
 .input-submit:hover {
-    background: darkgrey;
-    color: whitesmoke;
-    border: 1px solid whitesmoke;
+    background: #A2AAAD;
+    color: #F4F5F0;
+    border: 1px solid #F4F5F0;
 }
 
 .search-result {
@@ -250,6 +322,28 @@ export default {
     overflow: auto;
     height: 100%;
     flex: 1;
+}
+
+.read-button {
+    height: 50px;
+    background: #A2AAAD;
+    font-size: 1rem;
+    font-weight: lighter;
+    width: 90%;
+    position: relative;
+    /* display: flex; */
+    left: 0;
+    right: 0;
+    margin: auto;
+    border: 1px solid #F4F5F0;
+    cursor: pointer;
+    color: #F4F5F0;
+}
+
+.read-button:hover {
+    color: #A2AAAD;
+    background-color: #F4F5F0;
+    border: 1px solid #A2AAAD;
 }
 
 .search-result div{
