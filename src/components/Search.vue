@@ -10,6 +10,9 @@
             <div v-bind:class="{ hide : searchResults.length > 0 }">
                 Ingen resultater . . .
             </div>
+            <div v-bind:class="{ hide : !fetchLocale }">
+                Holdeplasser nær deg . . .
+            </div>
             <div v-for="searchResult in searchResults"
                 v-bind:class="{ hide : searchResults.length == 0}"
                 v-on:click="goToCord(searchResult.id, searchResult.coordinates)">
@@ -41,13 +44,85 @@ export default {
       }
     },
     methods: {
+        async searchLocation(location) {
+            var coordinates = location.coords;
+            this.fetchLocale = true;
+            this.searchResults = [""];
+            const toFeature = await service.getStopPlacesByPosition(coordinates);
+            this.searchResults = [];
+            for(var i = 0; i < toFeature.length; i++) {
+                if(toFeature[i].id.indexOf("NSR:StopPlace") == -1) continue;
+                this.searchResults.push({
+                    title: toFeature[i].name,
+                    coordinates: [
+                        toFeature[i].longitude,
+                        toFeature[i].latitude,
+                    ],
+                    id: toFeature[i].id
+                });
+            }
+        },
+        async addBikeStops(coords, range) {
+            for(var i = 0; i < this.bikeSources.length; i++) {
+                store.getters.map.removeSource(this.bikeSources[i]);
+            }
+            for(var i = 0; i < this.bikeLayers.length; i++) {
+                store.getters.map.removeLayer(this.bikeLayers[i]);
+                store.getters.map.removeLayer(this.bikeLayers[i].id);
+            }
+            this.bikeLayers = [];
+            this.bikeSources = [];
+
+            const list = await service.getBikeRentalStations(coords, range);
+
+            for(var i = 0; i < list.length; i++) {
+                const geoJson = {
+                    "type": "FeatureCollection",
+                    "features": [{
+                        "type": "Feature",
+                        'properties': {
+                            'title': '',
+                            'icon': 'bicycle-15'
+                        },
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": []
+                        }
+                    }]
+                };
+                geoJson.features[0].properties.title = list[i].id + "_bicycle";
+                geoJson.features[0].geometry.coordinates = [list[i].longitude, list[i].latitude];
+
+                store.getters.map.addSource(list[i].id + "_bicycle", {
+                    type: 'geojson',
+                    data: geoJson
+                });
+                var newBike = {
+                    'id': list[i].id + "_bicycle",
+                    'type': 'symbol',
+                    'source': list[i].id + "_bicycle",
+                    'layout': {
+                        'icon-image': 'bicycle-15',
+                        'text-field': list[i].bikesAvailable + ":" + list[i].spacesAvailable,
+                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                        'text-offset': [0, 0.6],
+                        'text-anchor': 'top'
+                    }
+                };
+
+                store.getters.map.addLayer(newBike);
+
+                this.bikeSources.push(list[i].id + "_bicycle");
+                this.bikeLayers.push(newBike)
+            }
+        },
         goToCurrentCordsofBus(id) {
             var fullId = id;
             var smallId = id.split("RUT:Line:")[1];
         },
         async processSearch() {
             this.searchResults = [];
-
+            this.fetchLocale = false;
             const toFeature = await service.getFeatures(this.searchText);
             for(var i = 0; i < toFeature.length; i++) {
                 if(toFeature[i].properties.id.indexOf("NSR:StopPlace") == -1) continue;
@@ -68,6 +143,7 @@ export default {
                 ],
                 zoom: 19
             });
+
             const _departures = await service.getStopPlaceDepartures(id, {
                 timeRange: 3600
             });
@@ -91,13 +167,25 @@ export default {
                     color: _departures[i].serviceJourney.journeyPattern.line.presentation.colour,
                 });
             }
+            this.addBikeStops({
+                longitude: coordinates[0],
+                latitude: coordinates[1]
+            }, 500);
         }
+    },
+    mounted(){
+        this.$root.$on('fetchAndSearchLocaleRoute', (data) => {
+            this.searchLocation(data);
+        });
     },
     data(){
         return {
             searchText: "",
             searchResults: [],
-            departures: []
+            departures: [],
+            fetchLocale: false,
+            bikeSources: [],
+            bikeLayers: [],
         }
     }
 };
