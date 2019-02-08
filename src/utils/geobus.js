@@ -9,7 +9,7 @@ const CAR_TYPES = {
 
 function getCordsByLineNumber(lineNumber) {
 
-	return axios.get(BASE_URL + '/geotest', { 
+	return axios.get(BASE_URL + '/geotest', {
 		params: {
 			lineRef: `RUT:Line:${lineNumber}`
 		}
@@ -55,7 +55,7 @@ function carToGeoJSON(car) {
 	geoJson.features[0].properties.title = `${typeOfCar(car)} ${nameOfCar(car)}`
 	geoJson.features[0].properties.icon = typeOfCar(car);
 	geoJson.features[0].geometry.coordinates = cordsOfCar(car)
-	
+
 	return geoJson
 }
 
