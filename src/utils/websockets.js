@@ -1,6 +1,6 @@
 let routeDatas = [];
 
-const socket = new WebSocket("ws://192.168.102.168:8081/ws");
+const socket = new WebSocket(process.env.VUE_APP_MH_WS_BACKEND || "wss://pubstream.sklirg.io/ws");
 
 const route = "";
 
