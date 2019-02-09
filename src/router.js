@@ -7,7 +7,7 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '/main',
+      path: '/',
       name: 'main',
       component: () => import(/* webpackChunkName: "about" */ './views/MainView.vue'),
     },
