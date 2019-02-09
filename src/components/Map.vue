@@ -73,13 +73,10 @@ export default {
         setTimeout(() => {
             window.setInterval(async () => {
                 this.updateRoutes(this.selectedRoutes)
-<<<<<<< HEAD
             }, 5000);
-        }, 2000)
-=======
-            }, 3000);
+
         }, 4000)
->>>>>>> 9a88e744d0c5c579e4a4656719a791c1acf240e3
+
     },
     methods: {
         mapClicked(map, e) {
