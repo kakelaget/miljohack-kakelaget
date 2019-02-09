@@ -22,6 +22,7 @@ const updater = function(event) {
         "vehicle_id" in data) {
             // data.indexOf(route) !== -1) {
             routeDatas.push(data);
+        } else {
         }
     }
 }

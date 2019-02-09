@@ -3,6 +3,14 @@ function geoToCords(geoJSON) {
 	return geoJSON.features[0].geometry.coordinates;
 }
 
+function sortProperty(a,b) {
+	if (a.title < b.title)
+		return -1;
+	if (a.title > b.title)
+		return 1;
+	return 0;
+}
+
 function compare(arr1,arr2){
 	if(!arr1  || !arr2) return
 
@@ -18,7 +26,7 @@ function compare(arr1,arr2){
 		}
 	}))
 
-  return result
+	return result
 }
 
-export { geoToCords, compare }
+export { geoToCords, compare, sortProperty }
