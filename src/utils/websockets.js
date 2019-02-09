@@ -1,6 +1,6 @@
 let things = [];
 
-const socket = new WebSocket("ws://192.168.102.168:8081/ws");
+const socket = new WebSocket("wss://pubstream.sklirg.io/ws");
 
 const route = "";
 
