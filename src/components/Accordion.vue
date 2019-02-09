@@ -43,6 +43,7 @@
         padding: 0;
         display: flex;
         flex-direction: column;
+		overflow-x: hidden;
     }
     .accordion-container ul li {
         font-size: 1rem;

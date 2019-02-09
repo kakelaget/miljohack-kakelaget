@@ -4,6 +4,8 @@ const store = new Vuex.Store({
     state: {
         map: {},
         filterElements: [],
+        filter: true,
+        carCategories: [],
     },
     mutations: {
         setMap (state, map) {
@@ -11,6 +13,12 @@ const store = new Vuex.Store({
         },
         setFilterElements(state, filterElements) {
             state.filterElements = filterElements
+        },
+        setFilter(state, filter) {
+            state.filter = filter
+        },
+        setCarCategories(state, carCategories) {
+            state.carCategories = carCategories
         }
     },
     actions: {
@@ -19,6 +27,12 @@ const store = new Vuex.Store({
         },
         setFilterElements(context, filterElements) {
             context.commit('setFilterElements', filterElements);
+        },
+        setFilter(context, filter) {
+            context.commit('setFilter', filter);
+        },
+        setCarCategories(context, carCategories) {
+            context.commit('setCarCategories', carCategories);
         }
     },
     getters: {
@@ -27,6 +41,12 @@ const store = new Vuex.Store({
         },
         filterElements: state => {
             return state.filterElements;
+        },
+        filter: state => {
+            return state.filter;
+        },
+        carCategories: state => {
+            return state.carCategories;
         }
     }
 });
