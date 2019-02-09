@@ -1,4 +1,4 @@
-let things = [];
+let routeDatas = [];
 
 const socket = new WebSocket("ws://192.168.102.168:8081/ws");
 
@@ -21,7 +21,7 @@ const updater = function(event) {
         "lng" in data &&
         "vehicle_id" in data) {
             // data.indexOf(route) !== -1) {
-            things.push(data);
+            routeDatas.push(data);
         }
     }
 }
@@ -38,12 +38,16 @@ const updater = function(event) {
 "course":109 }"
 */
 
-window.setInterval(updater, 5000);
+window.setInterval(updater);
 
-function returnAndClear() {
-    var qq = things.splice(0, things.length);
-    things = [];
-    return qq;
-}
+function returnAndClear(min, max) {
+    var filteredElements = routeDatas.filter(x =>
+        x.lat > min.lat &&
+        x.lat < max.lat &&
+        x.lng < max.long &&
+        x.lng > min.long);
+        routeDatas = [];
+        return filteredElements;
+    }
 
-module.exports = returnAndClear;
+    module.exports = returnAndClear;
