@@ -22,6 +22,9 @@ function cordsOfCar(car) {
 	if (car === undefined) { return false }
 
 	const VehicleCords = car.MonitoredVehicleJourney[0].VehicleLocation[0];
+
+	if (Math.floor(VehicleCords.Longitude[0]) == 0 && Math.floor(VehicleCords.Latitude[0]) == 0) { return false }
+
 	return [ parseFloat(VehicleCords.Longitude[0]), parseFloat(VehicleCords.Latitude[0]) ]
 	// return { long: VehicleCords.Longitude[0], lat: VehicleCords.Latitude[0] }
 }
