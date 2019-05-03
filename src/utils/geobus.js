@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.VUE_APP_MH_BACKEND || `https://mhgeobus.sklirg.io`
+const BASE_URL = `https://mhgeobus.sklirg.io`
 const CAR_TYPES = {
 	'Sporvognsdrift': 'Trikk',
 	'Nobina': 'Buss'
